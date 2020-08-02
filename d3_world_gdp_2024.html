@@ -1,0 +1,136 @@
+<html>
+<script src="https://d3js.org/d3.v4.js"></script>
+<script src="https://rawgit.com/susielu/d3-annotation/master/d3-annotation.min.js"></script>
+
+<style> rect {fill: #b3b3b3; stroke: black; }
+ h1 {
+  color: #3260a8;
+  text-align:center;
+}
+ h2 {
+  color: #3260a8;
+  padding-left:900px;
+ padding-top:10px;
+}
+.pagination {
+  display: inline-block;
+  padding-left:50px;
+  padding-top:10px;
+}
+
+.pagination a {
+  color: black;
+  float: left;
+  padding: 8px 16px;
+  text-decoration: none;
+  border: 1px solid #ddd;
+}
+
+.pagination a.active {
+  background-color: #999999;
+  color: white;
+  border: 1px solid #999999;
+}
+
+.pagination a:hover:not(.active) {background-color: #ddd;}
+
+.pagination a:first-child {
+  border-top-left-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+.pagination a:last-child {
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+}
+</style>
+<body>
+<div>
+<h1>Top 6 countries contributing to world GDP</h1>
+<div class="pagination">
+  <a href="d3_world_gdp_1990.html">1</a>
+  <a href="d3_world_gdp_2000.html">2</a>
+  <a href="d3_world_gdp_2010.html">3</a>
+  <a href="d3_world_gdp_2020.html">4</a>
+  <a class="active" href="d3_world_gdp_2024.html">5</a>
+</div>
+<h2>Year : 2024 (prediction)</h2>
+</div>
+<svg width=1900 height=600>
+</svg>
+<script>
+	// set the dimensions and margins of the graph
+	var margin = {top: 20, right: 20, bottom: 30, left: 50},
+      width = 960  - margin.left - margin.right,
+      height = 500 - margin.top - margin.bottom;
+     
+
+        var svg = d3.select("svg")
+			.append("g")
+			.attr("transform","translate(100,50)")
+			
+		const annotations = [
+		  {
+			note: {
+			  title: "Gap between China and USA predicted to shrink significantly",
+			  align: "middle", 
+			  wrap: 160,  
+			  padding: 15   
+			},
+			color: ["#69b3a2"],
+			x: 550,
+			y: 305,
+			dy: -50,
+			dx: 50
+		  }
+		]
+		
+
+       d3.csv("https://raw.githubusercontent.com/shrutidixit88/interactivedataviz/master/world_gdp_2024.csv", function(data) {
+
+			
+			const makeAnnotations = d3.annotation().annotations(annotations)
+
+			// set the ranges
+			var y = d3.scaleBand()
+			.range([height,0])
+			.padding(0.1);
+
+			var x = d3.scaleLinear()
+			.range([0,width])
+
+
+			x.domain([500, 30000])
+			y.domain(data.map(function(d) { return d.country; }))
+
+           
+			svg.selectAll("rect")
+			.data(data)
+			.enter().append("rect")
+			//.attr("x",function(d) {return x(d.gdp);})
+			.attr("y", function(d) {return y(d.country);})
+			.attr("width", function(d) {return x(d.gdp);})
+			.attr("height", y.bandwidth());
+
+			svg.append("g")
+			.attr("transform", "translate(0," + height + ")")
+			.call(d3.axisBottom(x))
+            .selectAll("text")
+           
+
+			svg.append("g")
+			.call(d3.axisLeft(y))
+			
+			svg.append("text")
+			.attr("transform", "rotate(0)")	
+			.attr("y", 500)
+			.attr("dx", "30.00em")
+			.style("text-anchor", "end")
+			.text("Value in Billions USD");
+
+			svg.append("g")
+			.call(makeAnnotations)
+})
+</script>
+</body>
+</html>
